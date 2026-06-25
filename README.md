@@ -1,6 +1,7 @@
 # AOT Memory Server
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
+[![.NET](https://github.com/janitorr/aot-memory-server/actions/workflows/dotnet.yml/badge.svg)](https://github.com/janitorr/aot-memory-server/actions/workflows/dotnet.yml)
 
 A lightweight, AOT-compiled persistent memory store for AI agents. Provides REST and MCP APIs backed by SQLite. Compiled to a native binary (~33 MB) with fast startup and zero runtime dependencies.
 
