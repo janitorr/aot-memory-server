@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AotMemoryServer/AotMemoryServer.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AotMemoryServer.Tests.Integration/AotMemoryServer.Tests.Integration.csproj" />
+    <Project Path="tests/AotMemoryServer.Tests.Unit/AotMemoryServer.Tests.Unit.csproj" />
+  </Folder>
+</Solution>

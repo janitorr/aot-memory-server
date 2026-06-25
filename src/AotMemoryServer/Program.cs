@@ -36,3 +36,5 @@ app.MapHealthEndpoints();
 app.MapMcpEndpoints();
 
 app.Run();
+
+public partial class Program { }
