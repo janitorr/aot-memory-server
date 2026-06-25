@@ -2,13 +2,13 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
 
-A lightweight, AOT-compiled persistent memory store for AI agents. Provides REST and JSON-RPC (MCP) APIs backed by SQLite. Compiled to a native binary (~33 MB) with fast startup and zero runtime dependencies.
+A lightweight, AOT-compiled persistent memory store for AI agents. Provides REST and MCP APIs backed by SQLite. Compiled to a native binary (~33 MB) with fast startup and zero runtime dependencies.
 
 ## Features
 
 - **Native AOT binary** — no .NET runtime required, instant startup
 - **REST API** — full CRUD at `/api/memory`
-- **JSON-RPC 2.0 / MCP** — AI-agent-friendly endpoint at `/api/mcp`
+- **MCP endpoint** — AI-agent-friendly endpoint at `/mcp`
 - **Health checks** — `/api/health` and `/api/ready`
 - **OpenAPI + Scalar UI** — interactive docs at `/scalar/v1`
 - **Validation** — input validation, secret detection, conflict resolution
@@ -43,7 +43,7 @@ The server starts at `http://localhost:5070`. Open `http://localhost:5070/scalar
 | DELETE | `/api/memory/{id}` | Delete a fact by ID |
 | GET | `/api/health` | Health check |
 | GET | `/api/ready` | Readiness check |
-| POST | `/api/mcp` | JSON-RPC 2.0 (methods: `memory/list`, `memory/get`, `memory/search`, `memory/set`, `memory/update`, `memory/delete`) |
+| POST | `/mcp` | MCP (tools: `memory_list`, `memory_get`, `memory_search`, `memory_set`, `memory_update`, `memory_delete`) |
 
 Full API documentation with curl examples is in [`AGENTS.md`](AGENTS.md). Interactive docs are at `/scalar/v1` when the server is running.
 
