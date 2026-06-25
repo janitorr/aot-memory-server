@@ -55,39 +55,21 @@
 - Route to CQRS handlers via `method` field
 - Return standard JSON-RPC response format
 
-## Step 7: Security middleware
-- Write `Middleware/ApiKeyMiddleware.cs`:
-  - Reads `X-Memory-ApiKey` from header
-  - Compares against `MEMORY_API_KEY` env
-  - Only enforced on POST/PUT/DELETE
-
-## Step 8: Backup endpoint
-- `POST /admin/backup` — timestamped copy of `memory.db` to `/data/backups/`
-
-## Step 9: Metrics
-- `/metrics` endpoint — Prometheus text format
-- Track `memory_request_total`, `memory_request_duration_seconds`
-
-## Step 10: Wire everything in Program.cs
+## Step 7: Wire everything in Program.cs
 - [done] Register CQRS handlers (DI)
 - [done] Register DbContext with SQLite
 - [todo] Configure Kestrel binding from env/args
 - [todo] Apply migrations on startup
-- [todo] Map endpoint groups (REST, Health, MCP, backup, metrics)
-- [todo] Add API key middleware
+- [todo] Map endpoint groups (REST, Health, MCP)
 - [todo] JSON source generator for AOT-safe serialization
 
-## Step 11: OpenCode hook scripts
-- `hooks/beforeAgentStart.sh` — bash, polls `/health`, starts compose
-- `hooks/beforeAgentStart.ps1` — PowerShell equivalent
-
-## Step 12: Dockerfile
+## Step 8: Dockerfile
 - Multi-stage AOT build
 
-## Step 13: docker-compose.yml
+## Step 9: docker-compose.yml
 - Service definition with volume, port, env vars
 
-## Step 14: Tests
+## Step 10: Tests
 - `tests/AotMemoryServer.Tests.Unit/`:
   - `MemoryFactValidatorTests.cs` — validate length, secrets, code, categories
   - `ConflictResolutionTests.cs` — confidence comparison, force flag
@@ -96,5 +78,5 @@
   - `RestEndpointTests.cs` — CRUD via REST
   - `McpEndpointTests.cs` — JSON-RPC dispatch
 
-## Step 15: Housekeeping
+## Step 11: Housekeeping
 - `.gitignore`, `.env.example`, `README.md`

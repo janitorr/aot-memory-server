@@ -19,19 +19,14 @@
   - [x] `Endpoints/MemoryEndpoints.cs` — CRUD routes under `/api/memory`
   - [x] `Endpoints/HealthEndpoints.cs` — `/api/health`, `/api/ready`
 - [ ] Step 6: MCP endpoint
-- [ ] Step 7: Security middleware
-- [ ] Step 8: Backup endpoint
-- [ ] Step 9: Metrics
-- [ ] Step 10: Wire everything in Program.cs
+- [ ] Step 7: Wire everything in Program.cs
   - [x] Handler DI registration
   - [x] DbContext registration
   - [ ] Kestrel binding from env/args
   - [ ] Apply migrations on startup
-  - [ ] Map endpoint groups
-  - [ ] API key middleware
+  - [ ] Map endpoint groups (REST, Health, MCP)
   - [ ] JSON source generator for AOT
-- [ ] Step 11: OpenCode hook scripts
-- [ ] Step 12: Dockerfile
-- [ ] Step 13: docker-compose.yml
-- [ ] Step 14: Tests
-- [ ] Step 15: Housekeeping (.env.example, README)
+- [ ] Step 8: Dockerfile
+- [ ] Step 9: docker-compose.yml
+- [ ] Step 10: Tests
+- [ ] Step 11: Housekeeping (.env.example, README)
