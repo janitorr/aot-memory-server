@@ -122,7 +122,7 @@ public sealed class RestEndpointTests : IClassFixture<CustomWebApplicationFactor
         Assert.NotNull(result);
         Assert.True(result.Id > 0);
         Assert.Equal("new-key", result.Key);
-        Assert.NotEmpty(result.UpdatedAt);
+        Assert.NotEqual(default, result.UpdatedAt);
     }
 
     [Fact]

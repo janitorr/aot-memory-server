@@ -28,13 +28,13 @@ public sealed partial class UpsertFactHandler(AppDbContext db, ILogger<UpsertFac
             result = MemoryFactValidator.ResolveConflict(existing, command.Fact, command.Force);
             if (result != existing)
             {
-                result.UpdatedAt = DateTime.UtcNow.ToString("O");
+                result.UpdatedAt = DateTimeOffset.UtcNow;
                 db.Entry(existing).CurrentValues.SetValues(result);
             }
         }
         else
         {
-            command.Fact.UpdatedAt = DateTime.UtcNow.ToString("O");
+            command.Fact.UpdatedAt = DateTimeOffset.UtcNow;
             db.MemoryFacts.Add(command.Fact);
             result = command.Fact;
         }

@@ -73,7 +73,7 @@ namespace AotMemoryServer.Data.Compiled
 
             var updatedAt = runtimeEntityType.AddProperty(
                 "UpdatedAt",
-                typeof(string),
+                typeof(DateTimeOffset),
                 propertyInfo: typeof(MemoryFact).GetProperty("UpdatedAt", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MemoryFact).GetField("<UpdatedAt>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 

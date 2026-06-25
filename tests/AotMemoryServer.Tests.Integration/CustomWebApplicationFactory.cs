@@ -48,7 +48,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        fact.UpdatedAt = DateTime.UtcNow.ToString("O");
+        fact.UpdatedAt = DateTimeOffset.UtcNow;
         db.MemoryFacts.Add(fact);
         await db.SaveChangesAsync();
         return fact;

@@ -21,7 +21,7 @@ public sealed partial class UpdateFactHandler(AppDbContext db, ILogger<UpdateFac
             return null;
 
         command.Fact.Id = existing.Id;
-        command.Fact.UpdatedAt = DateTime.UtcNow.ToString("O");
+        command.Fact.UpdatedAt = DateTimeOffset.UtcNow;
         db.Entry(existing).CurrentValues.SetValues(command.Fact);
 
         await db.SaveChangesAsync();
