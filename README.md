@@ -136,4 +136,4 @@ dotnet test tests/AotMemoryServer.Tests.Integration
 
 ## License
 
-MIT
+[MIT](LICENSE)
