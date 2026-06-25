@@ -3,6 +3,18 @@
 This project has an AOT memory server at `http://localhost:5070`. Use it to store
 and retrieve persistent context across coding sessions.
 
+## Startup
+
+The server is configured as a remote MCP server in `opencode.json`. It must be
+running before you can use its tools. If you get connection errors, start it
+with:
+
+```bash
+dotnet run --project src/AotMemoryServer
+```
+
+The server listens on `http://localhost:5070` and exposes MCP at `/mcp`.
+
 ## When to use
 
 - Before starting a complex task, check memory for relevant facts
@@ -10,66 +22,25 @@ and retrieve persistent context across coding sessions.
 - When unsure about project setup or past decisions, query memory first
 - Share context between agents by saving facts under shared categories and scopes
 
-## API reference
+## MCP Server
 
-Base URL: `http://localhost:5070/api/memory`
+The server runs an MCP (Model Context Protocol) endpoint at `http://localhost:5070/mcp` with stateless HTTP transport. Tools are auto-discoverable via `tools/list` — no manual API docs needed.
 
-### Store a fact
+### Available tools
 
-```
-POST /api/memory
-Content-Type: application/json
+| Tool | Description |
+|---|---|
+| `memory_list` | List facts with optional filters (category, scope, key) and pagination |
+| `memory_get` | Get a single fact by ID |
+| `memory_search` | Search facts by keyword in key/value fields |
+| `memory_set` | Create/replace a fact (higher confidence wins on conflict) |
+| `memory_update` | Update an existing fact by ID (partial update) |
+| `memory_delete` | Delete a fact by ID |
 
-{ "category": "...", "key": "...", "value": "...", "scope": "...", "confidence": 0.9 }
-```
-
-### List facts
-
-```
-GET /api/memory?category=&scope=&key=&page=&pageSize=
-```
-
-### Get a fact by ID
-
-```
-GET /api/memory/{id}
-```
-
-### Update a fact
-
-```
-PUT /api/memory/{id}
-Content-Type: application/json
-
-{ "key": "...", "value": "..." }
-```
-
-### Delete a fact
-
-```
-DELETE /api/memory/{id}
-```
-
-## Categories
+### Categories
 
 Use one of: `preference`, `fact`, `concept`, `rule`, `plan`, `goal`, `task`, `note`
 
-## Scope convention
+### Scope convention
 
 Use the feature or area name (e.g. `auth`, `api`, `db`, `frontend`, `project`).
-
-## Examples
-
-Save a project convention:
-
-```bash
-curl -s -X POST http://localhost:5070/api/memory \
-  -H "Content-Type: application/json" \
-  -d '{"category":"rule","key":"naming","value":"Use PascalCase for public API and camelCase for internal fields","scope":"project","confidence":0.9}'
-```
-
-Check what's stored before a task:
-
-```bash
-curl -s "http://localhost:5070/api/memory?category=rule&scope=project"
-```

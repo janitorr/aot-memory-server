@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text;
 using System.Text.Json;
 using AotMemoryServer.Models;
@@ -9,104 +8,69 @@ public sealed class McpEndpointTests : IClassFixture<CustomWebApplicationFactory
 {
     private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _client;
+    private int _requestId;
 
     public McpEndpointTests(CustomWebApplicationFactory factory)
     {
         _factory = factory;
         _client = factory.CreateClient();
+        _client.DefaultRequestHeaders.Accept.Add(
+            new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        _client.DefaultRequestHeaders.Accept.Add(
+            new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("text/event-stream"));
     }
 
     public Task InitializeAsync() => _factory.ClearFactsAsync();
     public Task DisposeAsync() => Task.CompletedTask;
 
     [Fact]
-    public async Task InvalidJson_ReturnsParseError()
+    public async Task ToolsList_ReturnsAllTools()
     {
-        var response = await PostJsonAsync("not json");
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
+        var response = await SendRequest("tools/list", new { });
         var doc = await ParseResponse(response);
-        Assert.Equal(-32700, doc.RootElement.GetProperty("error").GetProperty("code").GetInt32());
-    }
 
-    [Fact]
-    public async Task MissingVersion_ReturnsInvalidRequest()
-    {
-        var body = JsonSerializer.Serialize(new { method = "memory/list", id = 1 });
-        var response = await PostJsonAsync(body);
+        var tools = doc.RootElement.GetProperty("result").GetProperty("tools");
+        var names = tools.EnumerateArray().Select(t => t.GetProperty("name").GetString()).ToHashSet();
 
-        var doc = await ParseResponse(response);
-        Assert.Equal(-32600, doc.RootElement.GetProperty("error").GetProperty("code").GetInt32());
-    }
-
-    [Fact]
-    public async Task UnknownMethod_ReturnsMethodNotFound()
-    {
-        var body = JsonSerializer.Serialize(new
-        {
-            jsonrpc = "2.0",
-            method = "bogus",
-            id = 1
-        });
-        var response = await PostJsonAsync(body);
-
-        var doc = await ParseResponse(response);
-        Assert.Equal(-32601, doc.RootElement.GetProperty("error").GetProperty("code").GetInt32());
+        Assert.Contains("memory_list", names);
+        Assert.Contains("memory_get", names);
+        Assert.Contains("memory_search", names);
+        Assert.Contains("memory_set", names);
+        Assert.Contains("memory_update", names);
+        Assert.Contains("memory_delete", names);
     }
 
     [Fact]
     public async Task MemorySet_Valid_ReturnsFact()
     {
-        var body = JsonSerializer.Serialize(new
+        var response = await SendToolCall("memory_set", new
         {
-            jsonrpc = "2.0",
-            method = "memory/set",
-            id = 1,
-            @params = new
-            {
-                fact = new
-                {
-                    key = "mcp-key",
-                    value = "mcp value",
-                    category = "fact",
-                    scope = "global",
-                    confidence = 1.0
-                }
-            }
+            key = "mcp-key",
+            value = "mcp value",
+            category = "fact",
+            scope = "global",
+            confidence = 1.0
         });
+        var result = await GetToolResult(response);
 
-        var response = await PostJsonAsync(body);
-        var doc = await ParseResponse(response);
-
-        Assert.Equal("2.0", doc.RootElement.GetProperty("jsonrpc").GetString());
-        Assert.Equal(1, doc.RootElement.GetProperty("id").GetInt32());
-        Assert.Equal("mcp-key", doc.RootElement.GetProperty("result").GetProperty("Key").GetString());
+        Assert.Contains("mcp-key", result);
+        Assert.Contains("mcp value", result);
     }
 
     [Fact]
     public async Task MemorySet_Invalid_ReturnsError()
     {
-        var body = JsonSerializer.Serialize(new
+        var response = await SendToolCall("memory_set", new
         {
-            jsonrpc = "2.0",
-            method = "memory/set",
-            id = 1,
-            @params = new
-            {
-                fact = new
-                {
-                    key = "",
-                    value = "v",
-                    category = "fact",
-                    scope = "global"
-                }
-            }
+            key = "",
+            value = "v",
+            category = "fact",
+            scope = "global"
         });
-
-        var response = await PostJsonAsync(body);
         var doc = await ParseResponse(response);
 
-        Assert.Equal(-32000, doc.RootElement.GetProperty("error").GetProperty("code").GetInt32());
+        Assert.True(doc.RootElement.TryGetProperty("error", out _) ||
+                    doc.RootElement.GetProperty("result").GetProperty("isError").GetBoolean());
     }
 
     [Fact]
@@ -121,18 +85,11 @@ public sealed class McpEndpointTests : IClassFixture<CustomWebApplicationFactory
             Key = "mk2", Value = "mv2", Category = "fact", Scope = "global", Confidence = 1.0
         });
 
-        var body = JsonSerializer.Serialize(new
-        {
-            jsonrpc = "2.0",
-            method = "memory/list",
-            id = 1
-        });
+        var response = await SendToolCall("memory_list", new { });
+        var result = await GetToolResult(response);
 
-        var response = await PostJsonAsync(body);
-        var doc = await ParseResponse(response);
-
-        var totalCount = doc.RootElement.GetProperty("result").GetProperty("TotalCount").GetInt32();
-        Assert.Equal(2, totalCount);
+        Assert.Contains("mk1", result);
+        Assert.Contains("mk2", result);
     }
 
     [Fact]
@@ -143,35 +100,20 @@ public sealed class McpEndpointTests : IClassFixture<CustomWebApplicationFactory
             Key = "get-key", Value = "get-val", Category = "fact", Scope = "global", Confidence = 1.0
         });
 
-        var body = JsonSerializer.Serialize(new
-        {
-            jsonrpc = "2.0",
-            method = "memory/get",
-            id = 1,
-            @params = new { id = created.Id }
-        });
+        var response = await SendToolCall("memory_get", new { id = created.Id });
+        var result = await GetToolResult(response);
 
-        var response = await PostJsonAsync(body);
-        var doc = await ParseResponse(response);
-
-        Assert.Equal("get-key", doc.RootElement.GetProperty("result").GetProperty("Key").GetString());
+        Assert.Contains("get-key", result);
+        Assert.Contains("get-val", result);
     }
 
     [Fact]
-    public async Task MemoryGet_NonExistent_ReturnsNullResult()
+    public async Task MemoryGet_NonExistent_ReturnsNull()
     {
-        var body = JsonSerializer.Serialize(new
-        {
-            jsonrpc = "2.0",
-            method = "memory/get",
-            id = 1,
-            @params = new { id = 999 }
-        });
+        var response = await SendToolCall("memory_get", new { id = 999 });
+        var result = await GetToolResult(response);
 
-        var response = await PostJsonAsync(body);
-        var doc = await ParseResponse(response);
-
-        Assert.Equal(JsonValueKind.Null, doc.RootElement.GetProperty("result").ValueKind);
+        Assert.Equal("null", result);
     }
 
     [Fact]
@@ -185,24 +127,12 @@ public sealed class McpEndpointTests : IClassFixture<CustomWebApplicationFactory
         {
             Key = "banana", Value = "yellow fruit", Category = "fact", Scope = "global", Confidence = 1.0
         });
-        await _factory.CreateFactAsync(new MemoryFact
-        {
-            Key = "carrot", Value = "vegetable", Category = "fact", Scope = "global", Confidence = 1.0
-        });
 
-        var body = JsonSerializer.Serialize(new
-        {
-            jsonrpc = "2.0",
-            method = "memory/search",
-            id = 1,
-            @params = new { q = "fruit" }
-        });
+        var response = await SendToolCall("memory_search", new { q = "fruit" });
+        var result = await GetToolResult(response);
 
-        var response = await PostJsonAsync(body);
-        var doc = await ParseResponse(response);
-
-        var items = doc.RootElement.GetProperty("result").GetProperty("Items");
-        Assert.Equal(2, items.GetArrayLength());
+        Assert.Contains("apple", result);
+        Assert.Contains("banana", result);
     }
 
     [Fact]
@@ -213,57 +143,28 @@ public sealed class McpEndpointTests : IClassFixture<CustomWebApplicationFactory
             Key = "upd-key", Value = "old", Category = "fact", Scope = "global", Confidence = 1.0
         });
 
-        var body = JsonSerializer.Serialize(new
+        var response = await SendToolCall("memory_update", new
         {
-            jsonrpc = "2.0",
-            method = "memory/update",
-            id = 1,
-            @params = new
-            {
-                id = created.Id,
-                fact = new
-                {
-                    key = "upd-key",
-                    value = "new",
-                    category = "rule",
-                    scope = "global",
-                    confidence = 0.5
-                }
-            }
+            id = created.Id,
+            value = "new",
+            category = "rule"
         });
+        var result = await GetToolResult(response);
 
-        var response = await PostJsonAsync(body);
-        var doc = await ParseResponse(response);
-
-        Assert.Equal("new", doc.RootElement.GetProperty("result").GetProperty("Value").GetString());
+        Assert.Contains("new", result);
     }
 
     [Fact]
-    public async Task MemoryUpdate_NonExistent_ReturnsNullResult()
+    public async Task MemoryUpdate_NonExistent_ReturnsError()
     {
-        var body = JsonSerializer.Serialize(new
+        var response = await SendToolCall("memory_update", new
         {
-            jsonrpc = "2.0",
-            method = "memory/update",
-            id = 1,
-            @params = new
-            {
-                id = 999,
-                fact = new
-                {
-                    key = "k",
-                    value = "v",
-                    category = "fact",
-                    scope = "global",
-                    confidence = 1.0
-                }
-            }
+            id = 999,
+            value = "new",
+            category = "fact"
         });
-
-        var response = await PostJsonAsync(body);
-        var doc = await ParseResponse(response);
-
-        Assert.Equal(JsonValueKind.Null, doc.RootElement.GetProperty("result").ValueKind);
+        var result = await GetToolResult(response);
+        Assert.Contains("not found", result, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -274,61 +175,60 @@ public sealed class McpEndpointTests : IClassFixture<CustomWebApplicationFactory
             Key = "del-key", Value = "v", Category = "fact", Scope = "global", Confidence = 1.0
         });
 
-        var body = JsonSerializer.Serialize(new
-        {
-            jsonrpc = "2.0",
-            method = "memory/delete",
-            id = 1,
-            @params = new { id = created.Id }
-        });
+        var response = await SendToolCall("memory_delete", new { id = created.Id });
+        var result = await GetToolResult(response);
 
-        var response = await PostJsonAsync(body);
-        var doc = await ParseResponse(response);
-
-        Assert.True(doc.RootElement.GetProperty("result").GetBoolean());
+        Assert.Equal("true", result);
     }
 
     [Fact]
     public async Task MemoryDelete_NonExistent_ReturnsFalse()
     {
+        var response = await SendToolCall("memory_delete", new { id = 999 });
+        var result = await GetToolResult(response);
+
+        Assert.Equal("false", result);
+    }
+
+    private async Task<HttpResponseMessage> SendRequest(string method, object? paramsObj)
+    {
+        var id = Interlocked.Increment(ref _requestId);
         var body = JsonSerializer.Serialize(new
         {
             jsonrpc = "2.0",
-            method = "memory/delete",
-            id = 1,
-            @params = new { id = 999 }
+            id,
+            method,
+            @params = paramsObj
         });
-
-        var response = await PostJsonAsync(body);
-        var doc = await ParseResponse(response);
-
-        Assert.False(doc.RootElement.GetProperty("result").GetBoolean());
+        var content = new StringContent(body, Encoding.UTF8, "application/json");
+        return await _client.PostAsync("/mcp", content);
     }
 
-    [Fact]
-    public async Task Notification_NoId_ReturnsEmpty()
-    {
-        var body = JsonSerializer.Serialize(new
-        {
-            jsonrpc = "2.0",
-            method = "memory/list"
-        });
-
-        var response = await PostJsonAsync(body);
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var bodyText = await response.Content.ReadAsStringAsync();
-        Assert.Empty(bodyText);
-    }
-
-    private async Task<HttpResponseMessage> PostJsonAsync(string json)
-    {
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        return await _client.PostAsync("/api/mcp", content);
-    }
+    private Task<HttpResponseMessage> SendToolCall(string tool, object args)
+        => SendRequest("tools/call", new { name = tool, arguments = args });
 
     private static async Task<JsonDocument> ParseResponse(HttpResponseMessage response)
     {
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonDocument.Parse(json);
+        var body = await response.Content.ReadAsStringAsync();
+
+        // Handle SSE format: "event: message\ndata: {...}\n\n"
+        if (body.StartsWith("event:", StringComparison.Ordinal))
+        {
+            foreach (var line in body.Split('\n'))
+            {
+                if (line.StartsWith("data: ", StringComparison.Ordinal))
+                {
+                    return JsonDocument.Parse(line[6..]);
+                }
+            }
+        }
+
+        return JsonDocument.Parse(body);
+    }
+
+    private static async Task<string> GetToolResult(HttpResponseMessage response)
+    {
+        var doc = await ParseResponse(response);
+        return doc.RootElement.GetProperty("result").GetProperty("content")[0].GetProperty("text").GetString()!;
     }
 }

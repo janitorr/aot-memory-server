@@ -17,7 +17,11 @@
 - [x] Step 5: REST endpoints
   - [x] `Endpoints/MemoryEndpoints.cs` — CRUD routes under `/api/memory`
   - [x] `Endpoints/HealthEndpoints.cs` — `/api/health`, `/api/ready`
-- [x] Step 6: MCP endpoint
+- [x] Step 6: MCP endpoint (upgraded to standard MCP protocol via official SDK)
+  - [x] `Endpoints/MemoryMcpTools.cs` — `[McpServerToolType]` with 6 tools
+  - [x] `ModelContextProtocol` NuGet packages (v1.4.0, AOT-safe)
+  - [x] Stateless HTTP transport at `POST /mcp`
+  - [x] Removed old custom JSON-RPC implementation
 - [x] Step 7: Wire everything in Program.cs
   - [x] Handler DI registration
   - [x] DbContext registration
@@ -30,7 +34,7 @@
   - [x] `Scalar.AspNetCore` NuGet package
   - [x] OpenAPI document generation at `/openapi/v1.json`
   - [x] Scalar UI at `/scalar/v1`
-- [ ] Step 8: Tests
+- [x] Step 8: Tests
 - [ ] Step 9: Dockerfile
 - [ ] Step 10: docker-compose.yml
 - [ ] Step 11: Housekeeping (.env.example, README)

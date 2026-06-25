@@ -7,6 +7,8 @@ using AotMemoryServer.Application.Abstractions;
 using AotMemoryServer.Application.Commands;
 using AotMemoryServer.Application.Queries;
 using Microsoft.EntityFrameworkCore;
+using ModelContextProtocol.AspNetCore;
+using ModelContextProtocol.Server;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +26,10 @@ builder.Services.AddScoped<IQueryHandler<SearchFacts, PagedResult<MemoryFact>>, 
 builder.Services.AddScoped<ICommandHandler<UpsertFact, MemoryFact>, UpsertFactHandler>();
 builder.Services.AddScoped<ICommandHandler<UpdateFact, MemoryFact?>, UpdateFactHandler>();
 builder.Services.AddScoped<ICommandHandler<DeleteFact, bool>, DeleteFactHandler>();
+
+builder.Services.AddMcpServer()
+    .WithHttpTransport(opts => opts.Stateless = true)
+    .WithTools<MemoryMcpTools>();
 
 builder.Services.AddOpenApi();
 
@@ -56,7 +62,7 @@ app.MapScalarApiReference();
 
 app.MapMemoryEndpoints();
 app.MapHealthEndpoints();
-app.MapMcpEndpoints();
+app.MapMcp("/mcp");
 
 app.Run();
 
