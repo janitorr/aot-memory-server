@@ -48,3 +48,21 @@ Use one of: `preference`, `fact`, `concept`, `rule`, `plan`, `goal`, `task`, `no
 ### Scope convention
 
 Use the feature or area name (e.g. `auth`, `api`, `db`, `frontend`, `project`).
+
+## Releases
+
+Use [semver](https://semver.org) for versioning: `vMAJOR.MINOR.PATCH`.
+
+- **MAJOR** — breaking API or behavioral changes
+- **MINOR** — new features, backward compatible
+- **PATCH** — bug fixes, performance improvements, refactors
+
+To release:
+
+```bash
+git tag v1.2.3 && git push origin v1.2.3
+```
+
+The CI pipeline will build, test, and push the Docker image to Docker Hub with tags `1.2.3`, `1.2`, and `latest`.
+
+Tag only from `main` after ensuring CI passes.
