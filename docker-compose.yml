@@ -1,5 +1,6 @@
 services:
   memory-server:
+    image: janitorr/aot-memory-server:latest
     build:
       context: .
       dockerfile: Dockerfile
