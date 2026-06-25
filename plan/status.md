@@ -15,7 +15,9 @@
   - [x] `Application/Queries/` — `GetFacts`, `GetFactById`, `SearchFacts`
   - [x] `Application/Commands/` — `UpsertFact`, `UpdateFact`, `DeleteFact`
   - [x] Source-generated structured logging (`[LoggerMessage]`)
-- [ ] Step 5: REST endpoints
+- [x] Step 5: REST endpoints
+  - [x] `Endpoints/MemoryEndpoints.cs` — CRUD routes under `/api/memory`
+  - [x] `Endpoints/HealthEndpoints.cs` — `/api/health`, `/api/ready`
 - [ ] Step 6: MCP endpoint
 - [ ] Step 7: Security middleware
 - [ ] Step 8: Backup endpoint
