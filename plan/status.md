@@ -26,7 +26,7 @@
   - [x] Apply migrations on startup
   - [x] Map endpoint groups (REST, Health, MCP)
   - [x] JSON source generator for AOT
-- [ ] Step 8: Dockerfile
-- [ ] Step 9: docker-compose.yml
-- [ ] Step 10: Tests
+- [ ] Step 8: Tests
+- [ ] Step 9: Dockerfile
+- [ ] Step 10: docker-compose.yml
 - [ ] Step 11: Housekeeping (.env.example, README)

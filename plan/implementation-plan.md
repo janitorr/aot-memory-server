@@ -63,13 +63,7 @@
 - [todo] Map endpoint groups (REST, Health, MCP)
 - [todo] JSON source generator for AOT-safe serialization
 
-## Step 8: Dockerfile
-- Multi-stage AOT build
-
-## Step 9: docker-compose.yml
-- Service definition with volume, port, env vars
-
-## Step 10: Tests
+## Step 8: Tests
 - `tests/AotMemoryServer.Tests.Unit/`:
   - `MemoryFactValidatorTests.cs` — validate length, secrets, code, categories
   - `ConflictResolutionTests.cs` — confidence comparison, force flag
@@ -77,6 +71,12 @@
   - `CustomWebApplicationFactory.cs`
   - `RestEndpointTests.cs` — CRUD via REST
   - `McpEndpointTests.cs` — JSON-RPC dispatch
+
+## Step 9: Dockerfile
+- Multi-stage AOT build
+
+## Step 10: docker-compose.yml
+- Service definition with volume, port, env vars
 
 ## Step 11: Housekeeping
 - `.gitignore`, `.env.example`, `README.md`
