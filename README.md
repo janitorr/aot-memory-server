@@ -176,6 +176,18 @@ Add this to your project's `opencode.json`:
 
 Copy [`AGENTS.md`](AGENTS.md) into your project root. It tells opencode agents about available tools, categories, scope conventions, and startup — so they know when and how to use the memory server.
 
+### Agent setup instructions
+
+If you are an AI agent helping a user install this memory server for their opencode project:
+
+1. **Copy the compose file** — Download [`docker-compose.example.yml`](docker-compose.example.yml) into the project root:
+   ```bash
+   curl -O https://raw.githubusercontent.com/janitorr/aot-memory-server/main/docker-compose.example.yml
+   ```
+2. **Start the server** — Run `docker compose -f docker-compose.example.yml up -d`
+3. **Configure opencode** — Add the MCP `remote` config to `opencode.json` (see step 2 above).
+4. **Add agent instructions** — Copy `AGENTS.md` into the target project root so agents know how to use memory tools.
+
 ## License
 
 [MIT](LICENSE)
