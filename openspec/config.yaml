@@ -1,0 +1,15 @@
+schema: spec-driven
+
+context: |
+  Tech stack: .NET 10, ASP.NET Core minimal APIs, EF Core 9 + SQLite, ModelContextProtocol SDK 1.4.0, Scalar.AspNetEscala.OpenAPI + Scalar for docs.
+  AOT requirements: PublishAot=true, StripSymbolsAfterPublish=true. No reflection-based serialization, no EF migrations (use inline DDL), use compiled model (Data/Compiled/), source-generated JSON (AppJsonContext), source-generated regex.
+  Conventions: CQRS with IQueryHandler<TQuery,TResult> / ICommandHandler<TCommand,TResult>, kebab-case OpenSpec change names, semver git tags (vMAJOR.MINOR.PATCH), feature scopes for memory facts (e.g., "project", "auth", "api").
+  Domain: AOT memory server exposing persistent key-value facts with category/scope/confidence over REST (/api/memory) and MCP (POST /mcp stateless HTTP). Known categories: preference, fact, concept, rule, plan, goal, task, note.
+
+# Per-artifact rules (optional)
+# rules:
+#   proposal:
+#     - Keep proposals under 500 words
+#     - Always include a "Non-goals" section
+#   tasks:
+#     - Break tasks into chunks of max 2 hours
