@@ -2,6 +2,15 @@ namespace AotMemoryServer.Data;
 
 public static class MemoryFactSql
 {
+    public const string InsertFact = """
+        INSERT INTO "MemoryFacts" ("Category", "Key", "Value", "Scope", "Confidence", "Source", "UpdatedAt", "IsDeprecated")
+        VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+        """;
+
+    public const string GetLastInsertRowId = """
+        SELECT last_insert_rowid() AS "Value"
+        """;
+
     public const string GetById = """
         SELECT "Id", "Category", "Key", "Value", "Scope", "Confidence", "Source", "UpdatedAt", "IsDeprecated"
         FROM "MemoryFacts" WHERE "Id" = @p0
