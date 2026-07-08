@@ -24,6 +24,8 @@ jobs:
       - run: dotnet restore
       - run: dotnet build --no-restore
       - run: dotnet test --no-build --verbosity normal
+      - run: dotnet build -c Release --no-restore
+      - run: dotnet test tests/AotMemoryServer.Tests.Integration -c Release --no-build --verbosity normal
 
   docker:
     if: github.event_name == 'push'
