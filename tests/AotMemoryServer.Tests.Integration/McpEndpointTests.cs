@@ -4,7 +4,8 @@ using AotMemoryServer.Models;
 
 namespace AotMemoryServer.Tests.Integration;
 
-public sealed class McpEndpointTests : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
+[Collection("IntegrationTests")]
+public sealed class McpEndpointTests : IAsyncLifetime
 {
     private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _client;

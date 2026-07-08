@@ -7,7 +7,8 @@ using AotMemoryServer.Models;
 
 namespace AotMemoryServer.Tests.Integration;
 
-public sealed class RestEndpointTests : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
+[Collection("IntegrationTests")]
+public sealed class RestEndpointTests : IAsyncLifetime
 {
     private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _client;

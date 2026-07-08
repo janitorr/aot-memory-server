@@ -3,7 +3,7 @@ using AotMemoryServer.Application.Commands;
 using AotMemoryServer.Application.Queries;
 using AotMemoryServer.Application.Serialization;
 using AotMemoryServer.Models;
-
+using Mediator;
 
 namespace AotMemoryServer.Endpoints;
 
@@ -17,15 +17,15 @@ public static class MemoryEndpoints
             string? category, string? scope, string? key,
             int page = 1, int pageSize = 20) =>
         {
-            var handler = context.RequestServices.GetRequiredService<IQueryHandler<GetFacts, PagedResult<MemoryFact>>>();
-            var result = await handler.Handle(new GetFacts(category, scope, key, page, pageSize));
+            var sender = context.RequestServices.GetRequiredService<ISender>();
+            var result = await sender.Send(new GetFacts(category, scope, key, page, pageSize));
             return Results.Ok(result);
         });
 
         group.MapGet("/{id:int}", async (HttpContext context, int id) =>
         {
-            var handler = context.RequestServices.GetRequiredService<IQueryHandler<GetFactById, MemoryFact?>>();
-            var result = await handler.Handle(new GetFactById(id));
+            var sender = context.RequestServices.GetRequiredService<ISender>();
+            var result = await sender.Send(new GetFactById(id));
             return result is null ? Results.NotFound() : Results.Ok(result);
         });
 
@@ -35,8 +35,8 @@ public static class MemoryEndpoints
         {
             try
             {
-                var handler = context.RequestServices.GetRequiredService<ICommandHandler<UpsertFact, MemoryFact>>();
-                var result = await handler.Handle(new UpsertFact(fact, force));
+                var sender = context.RequestServices.GetRequiredService<ISender>();
+                var result = await sender.Send(new UpsertFact(fact, force));
                 return Results.Ok(result);
             }
             catch (ValidationException ex)
@@ -51,8 +51,8 @@ public static class MemoryEndpoints
         {
             try
             {
-                var handler = context.RequestServices.GetRequiredService<ICommandHandler<UpdateFact, MemoryFact?>>();
-                var result = await handler.Handle(new UpdateFact(id, fact));
+                var sender = context.RequestServices.GetRequiredService<ISender>();
+                var result = await sender.Send(new UpdateFact(id, fact));
                 return result is null ? Results.NotFound() : Results.Ok(result);
             }
             catch (ValidationException ex)
@@ -63,8 +63,8 @@ public static class MemoryEndpoints
 
         group.MapDelete("/{id:int}", async (HttpContext context, int id) =>
         {
-            var handler = context.RequestServices.GetRequiredService<ICommandHandler<DeleteFact, bool>>();
-            var deleted = await handler.Handle(new DeleteFact(id));
+            var sender = context.RequestServices.GetRequiredService<ISender>();
+            var deleted = await sender.Send(new DeleteFact(id));
             return deleted ? Results.NoContent() : Results.NotFound();
         });
     }

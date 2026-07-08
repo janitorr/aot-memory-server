@@ -22,6 +22,11 @@
     <PackageReference Include="ModelContextProtocol" Version="1.4.0" />
     <PackageReference Include="ModelContextProtocol.AspNetCore" Version="1.4.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.16.5" />
+    <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
+    <PackageReference Include="Mediator.SourceGenerator" Version="3.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

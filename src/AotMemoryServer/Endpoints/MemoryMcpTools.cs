@@ -1,10 +1,10 @@
 using System.ComponentModel;
 using System.Text.Json;
-using AotMemoryServer.Application.Abstractions;
 using AotMemoryServer.Application.Commands;
 using AotMemoryServer.Application.Queries;
 using AotMemoryServer.Application.Serialization;
 using AotMemoryServer.Models;
+using Mediator;
 using ModelContextProtocol.Server;
 
 namespace AotMemoryServer.Endpoints;
@@ -12,27 +12,11 @@ namespace AotMemoryServer.Endpoints;
 [McpServerToolType]
 public sealed class MemoryMcpTools
 {
-    private readonly IQueryHandler<GetFacts, PagedResult<MemoryFact>> _listHandler;
-    private readonly IQueryHandler<GetFactById, MemoryFact?> _getByIdHandler;
-    private readonly IQueryHandler<SearchFacts, PagedResult<MemoryFact>> _searchHandler;
-    private readonly ICommandHandler<UpsertFact, MemoryFact> _upsertHandler;
-    private readonly ICommandHandler<UpdateFact, MemoryFact?> _updateHandler;
-    private readonly ICommandHandler<DeleteFact, bool> _deleteHandler;
+    private readonly ISender _sender;
 
-    public MemoryMcpTools(
-        IQueryHandler<GetFacts, PagedResult<MemoryFact>> listHandler,
-        IQueryHandler<GetFactById, MemoryFact?> getByIdHandler,
-        IQueryHandler<SearchFacts, PagedResult<MemoryFact>> searchHandler,
-        ICommandHandler<UpsertFact, MemoryFact> upsertHandler,
-        ICommandHandler<UpdateFact, MemoryFact?> updateHandler,
-        ICommandHandler<DeleteFact, bool> deleteHandler)
+    public MemoryMcpTools(ISender sender)
     {
-        _listHandler = listHandler;
-        _getByIdHandler = getByIdHandler;
-        _searchHandler = searchHandler;
-        _upsertHandler = upsertHandler;
-        _updateHandler = updateHandler;
-        _deleteHandler = deleteHandler;
+        _sender = sender;
     }
 
     [McpServerTool]
@@ -49,7 +33,7 @@ public sealed class MemoryMcpTools
         [Description("Items per page (default 20, max 100)")]
         int pageSize = 20)
     {
-        var result = await _listHandler.Handle(new GetFacts(category, scope, key, page, pageSize));
+        var result = await _sender.Send(new GetFacts(category, scope, key, page, pageSize));
         return JsonSerializer.Serialize(result, AppJsonContext.Default.PagedResultMemoryFact);
     }
 
@@ -58,7 +42,7 @@ public sealed class MemoryMcpTools
     public async Task<string> MemoryGet(
         [Description("Fact ID")] int id)
     {
-        var result = await _getByIdHandler.Handle(new GetFactById(id));
+        var result = await _sender.Send(new GetFactById(id));
         return JsonSerializer.Serialize(result, AppJsonContext.Default.MemoryFact);
     }
 
@@ -75,7 +59,7 @@ public sealed class MemoryMcpTools
         [Description("Items per page (default 20, max 100)")]
         int pageSize = 20)
     {
-        var result = await _searchHandler.Handle(new SearchFacts(q, category, scope, page, pageSize));
+        var result = await _sender.Send(new SearchFacts(q, category, scope, page, pageSize));
         return JsonSerializer.Serialize(result, AppJsonContext.Default.PagedResultMemoryFact);
     }
 
@@ -105,7 +89,7 @@ public sealed class MemoryMcpTools
             Source = source
         };
 
-        var result = await _upsertHandler.Handle(new UpsertFact(fact));
+        var result = await _sender.Send(new UpsertFact(fact));
         return JsonSerializer.Serialize(result, AppJsonContext.Default.MemoryFact);
     }
 
@@ -126,7 +110,7 @@ public sealed class MemoryMcpTools
         [Description("New source identifier")]
         string? source = null)
     {
-        var existing = await _getByIdHandler.Handle(new GetFactById(id));
+        var existing = await _sender.Send(new GetFactById(id));
         if (existing is null)
             return """{"error":"Fact not found"}""";
 
@@ -143,7 +127,7 @@ public sealed class MemoryMcpTools
             UpdatedAt = existing.UpdatedAt
         };
 
-        var result = await _updateHandler.Handle(new UpdateFact(id, updated));
+        var result = await _sender.Send(new UpdateFact(id, updated));
         return JsonSerializer.Serialize(result, AppJsonContext.Default.MemoryFact);
     }
 
@@ -152,7 +136,7 @@ public sealed class MemoryMcpTools
     public async Task<string> MemoryDelete(
         [Description("Fact ID to delete")] int id)
     {
-        var result = await _deleteHandler.Handle(new DeleteFact(id));
-        return JsonSerializer.Serialize(result);
+        var result = await _sender.Send(new DeleteFact(id));
+        return result ? "true" : "false";
     }
 }

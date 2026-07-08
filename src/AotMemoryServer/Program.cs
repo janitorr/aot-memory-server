@@ -2,13 +2,9 @@ using AotMemoryServer.Application.Serialization;
 using AotMemoryServer.Data;
 using AotMemoryServer.Data.Compiled;
 using AotMemoryServer.Endpoints;
-using AotMemoryServer.Models;
-using AotMemoryServer.Application.Abstractions;
-using AotMemoryServer.Application.Commands;
-using AotMemoryServer.Application.Queries;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 using ModelContextProtocol.AspNetCore;
-using ModelContextProtocol.Server;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,12 +16,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseModel(AppDbContextModel.Instance)
            .UseSqlite(builder.Configuration.GetConnectionString("DefaultDb") ?? "Data Source=memory.db"));
 
-builder.Services.AddScoped<IQueryHandler<GetFacts, PagedResult<MemoryFact>>, GetFactsHandler>();
-builder.Services.AddScoped<IQueryHandler<GetFactById, MemoryFact?>, GetFactByIdHandler>();
-builder.Services.AddScoped<IQueryHandler<SearchFacts, PagedResult<MemoryFact>>, SearchFactsHandler>();
-builder.Services.AddScoped<ICommandHandler<UpsertFact, MemoryFact>, UpsertFactHandler>();
-builder.Services.AddScoped<ICommandHandler<UpdateFact, MemoryFact?>, UpdateFactHandler>();
-builder.Services.AddScoped<ICommandHandler<DeleteFact, bool>, DeleteFactHandler>();
+builder.Services.AddMediator(options =>
+{
+    options.ServiceLifetime = ServiceLifetime.Scoped;
+});
 
 builder.Services.AddMcpServer()
     .WithHttpTransport(opts => opts.Stateless = true)
