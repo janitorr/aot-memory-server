@@ -176,7 +176,13 @@ Add this to your project's `opencode.json`:
 
 ### 3. Add agent instructions
 
-Copy [`AGENTS.md`](AGENTS.md) into your project root. It tells opencode agents about available tools, categories, scope conventions, and startup — so they know when and how to use the memory server.
+Download [`AGENTS.template.md`](AGENTS.template.md) into your project root as `AGENTS.md`:
+
+```bash
+curl -o AGENTS.md https://raw.githubusercontent.com/janitorr/aot-memory-server/main/AGENTS.template.md
+```
+
+It tells opencode agents about available tools, categories, scope conventions, and startup — so they know when and how to use the memory server.
 
 ### Agent setup instructions
 
