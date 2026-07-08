@@ -4,9 +4,10 @@ You are an LLM assisting a user in setting up the AOT Memory Server for their pr
 
 ## Overview
 
-The AOT Memory Server is a lightweight, AOT-compiled persistent memory store for AI agents. It provides REST and MCP APIs backed by SQLite. This guide walks you through a complete installation using global OpenCode configuration, so every project benefits without modifying any project files.
+The AOT Memory Server is a lightweight, AOT-compiled persistent memory store for AI agents. It provides REST and MCP APIs backed by SQLite. This guide walks you through a complete installation using global OpenCode configuration, so agent instructions and MCP config are shared across all projects. Only one compose file lands in the project root.
 
 **What you will set up:**
+- A `docker-compose.memory.yml` file in the project root
 - A Docker container running the memory server on port 5070
 - Global MCP configuration in `~/.config/opencode/opencode.json`
 - Global agent instructions in `~/.config/opencode/memory-server.md`

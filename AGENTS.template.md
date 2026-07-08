@@ -5,13 +5,15 @@ and retrieve persistent context across coding sessions.
 
 ## Startup
 
-The server is configured as a remote MCP server. It must be running before you can use its tools. If you get connection errors, start it with:
+The server must be running before you can use its tools. If you get connection errors, start it with Docker:
 
 ```bash
-# Via Docker (recommended — works on Linux, macOS, and Windows)
+# If docker-compose.memory.yml doesn't exist, create it first:
+curl -O https://raw.githubusercontent.com/janitorr/aot-memory-server/main/docker-compose.example.yml
+mv docker-compose.example.yml docker-compose.memory.yml
+
+# Then start:
 docker compose -f docker-compose.memory.yml up -d
-# Or start directly with .NET:
-dotnet run --project src/AotMemoryServer
 ```
 
 The server listens on `http://localhost:5070` and exposes MCP at `/mcp`.
