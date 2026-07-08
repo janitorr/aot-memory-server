@@ -1,13 +1,10 @@
 # Memory Server
 
-This project has an AOT memory server at `http://localhost:5070`. Use it to store
-and retrieve persistent context across coding sessions.
+This project has an AOT memory server at `http://localhost:5070`. Use it to store and retrieve persistent context across coding sessions.
 
 ## Startup
 
-The server is configured as a remote MCP server in `opencode.json`. It must be
-running before you can use its tools. If you get connection errors, start it
-with:
+The server is configured as a remote MCP server in `opencode.json`. It must be running before you can use its tools. If you get connection errors, start it with:
 
 ```bash
 # Via Docker (recommended — works on Linux, macOS, and Windows)
@@ -19,9 +16,35 @@ dotnet run --project src/AotMemoryServer
 
 The server listens on `http://localhost:5070` and exposes MCP at `/mcp`.
 
-## When to Use Memory
+## Session Protocol — READ THIS FIRST
 
-### Explicit Triggers
+### Every Session Start
+
+Before doing anything else:
+
+1. `memory_search` with `scope=project`, `category=fact,rule,concept`
+2. `memory_search` with the project name or relevant area as keyword
+3. **Never say "I don't know"** about the user's preferences, project setup, conventions, or past decisions without searching memory first
+
+### Before You Store — Gate Check
+
+Ask yourself before every `memory_set`:
+
+| If the fact is... | Then... |
+|---|---|
+| Conversational ephemera ("user asked about X at 3pm") | **SKIP** — memory is for persistent context, not chat logs |
+| Already in the project's AGENTS.md or instructions | **SKIP** — it's already loaded |
+| A secret, token, or password | **SKIP** — the server will reject it |
+| The same fact under a different key | **SKIP** — search first to avoid duplicates |
+| Missing a scope or a descriptive key | **SKIP** — unfilterable, unsearchable |
+| A decision, bug pattern, convention, or preference | **STORE** — this helps future sessions |
+
+### After Completing Work
+
+- Store decisions, bug patterns, or conventions discovered during the task using `memory_set`
+- If the user states a preference, save it immediately
+
+## When to Use Memory
 
 | User says / does | Your response |
 |---|---|
@@ -31,19 +54,8 @@ The server listens on `http://localhost:5070` and exposes MCP at `/mcp`.
 | "what did we decide about X?" | `memory_search` with the topic keyword |
 | "what are the project conventions?" | `memory_list` with `category=rule` and `scope=project` |
 | Before starting a complex task | `memory_search` for related facts in the relevant scope |
-| After fixing a tricky bug | `memory_set` with the bug pattern so future sessions know |
-| User states a preference | `memory_set` with category `preference` |
 
-### Retrieval Protocol
-
-| Phase | What to do |
-|---|---|
-| **Session start** | `memory_search` for project-wide facts (`scope=project`, `category=fact,rule,concept`) |
-| **Before investigating** | Search area-specific facts (`scope=<relevant-area>`) |
-| **Mid-task discovery** | Check if fact already exists (`memory_search`) before storing — avoid duplicates |
-| **After completing work** | Store decisions, patterns, or conventions discovered during the task |
-
-## Category Decision Tree
+## Category Reference
 
 | Category | Use when | Example key | Example value |
 |---|---|---|---|
@@ -56,45 +68,17 @@ The server listens on `http://localhost:5070` and exposes MCP at `/mcp`.
 | `task` | A concrete action item with a clear deliverable | `auth/add-middleware` | "Add JWT authentication middleware to /api routes" |
 | `note` | An informal observation, reminder, or context note | `ci/flaky-macos-runner` | "macOS CI runner is flaky — tests sometimes timeout" |
 
-## Key Naming Convention
+## Key Naming
 
-Use `<area>/<kebab-case-descriptor>` format:
+Use `<area>/<kebab-case-descriptor>` format: `auth/no-backend-sessions`, `db/sqlite-aot-compiled-model`, `project/deploy-port-5070`.
 
-| Good | Why |
-|---|---|
-| `auth/no-backend-sessions` | Clear area + descriptive name |
-| `db/sqlite-aot-compiled-model` | Specific and searchable |
-| `project/deploy-port-5070` | Project-level fact with concrete detail |
-| `perf/cold-start-under-2s` | Category matches key intent |
+## Confidence
 
-| Bad | Why |
-|---|---|
-| `thing1` | Unsearchable, meaningless |
-| `auth-thing` | No area separator, vague |
-| `the-bug-we-found` | Describes nothing |
-| `note-about-something` | Too generic to retrieve |
+- `1.0` — confirmed by user or verified in code
+- `0.8` — strong inference from observation
+- `<0.5` — don't store
 
-## Confidence Semantics
-
-| Confidence | Meaning | When to use |
-|---|---|---|
-| `1.0` | Settled fact — confirmed by user or verified in code | User explicitly told you this, or you read it in source |
-| `0.7–0.9` | Strong inference from observation | You read it in source but no explicit user confirmation |
-| `0.5–0.6` | Tentative observation | You noticed it once, could be wrong — mark for review |
-| `<0.5` | Don't store | Too uncertain to be useful |
-
-**Conflict resolution:** When two facts share the same `(category, scope, key)`, the one with higher `confidence` wins. Use this to update stale facts — set a new fact with higher confidence to overwrite.
-
-## Anti-patterns
-
-| Don't | Why |
-|---|---|
-| Store ephemeral conversation state ("user asked about X at 3pm") | Memory is for persistent context, not chat logs |
-| Duplicate AGENTS.md content as memory facts | AGENTS.md is already loaded — don't store it in memory |
-| Store secrets, tokens, or passwords | The server has secret detection that will reject these |
-| Store unstructured blobs without a meaningful key | Makes retrieval impossible — always use descriptive keys |
-| Store the same fact under multiple keys | Causes confusion on retrieval — search first, then update |
-| Store facts without a scope | Scope is essential for filtering — always set it |
+When two facts share the same `(category, scope, key)`, the one with higher confidence wins.
 
 ## Available Tools
 
@@ -110,36 +94,6 @@ Use `<area>/<kebab-case-descriptor>` format:
 ## Scope Convention
 
 Use the feature or area name (e.g. `auth`, `api`, `db`, `frontend`, `project`).
-
-## Data Model
-
-Each memory fact follows this JSON schema:
-
-```json
-{
-  "id": 0,
-  "category": "fact",
-  "key": "my-key",
-  "value": "store any text here",
-  "scope": "project",
-  "confidence": 0.9,
-  "source": null,
-  "updatedAt": "2026-06-25T12:00:00Z",
-  "isDeprecated": false
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | int | Auto-generated primary key |
-| `category` | string | One of: `preference`, `fact`, `concept`, `rule`, `plan`, `goal`, `task`, `note` |
-| `key` | string | Unique within `(category, scope)` |
-| `value` | string | The stored content (max 10,000 chars) |
-| `scope` | string | Feature or area name (e.g. `auth`, `api`, `project`) |
-| `confidence` | double | 0.0–1.0, used for conflict resolution |
-| `source` | string? | Optional identifier |
-| `updatedAt` | string | ISO 8601 timestamp |
-| `isDeprecated` | bool | Soft-delete flag |
 
 ## Spec Kit Workflow
 
