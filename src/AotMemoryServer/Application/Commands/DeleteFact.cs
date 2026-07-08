@@ -1,5 +1,3 @@
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Mediator;
 using AotMemoryServer.Data;
 using AotMemoryServer.Application.Abstractions;
@@ -13,41 +11,15 @@ public sealed partial class DeleteFactHandler(AppDbContext db, ILogger<DeleteFac
 {
     public async ValueTask<bool> Handle(DeleteFact command, CancellationToken cancellationToken)
     {
-        var conn = db.Database.GetDbConnection();
-        await conn.OpenAsync(cancellationToken);
+        var existing = await CompiledQueries.GetByIdAsync(db, command.Id);
 
-        try
-        {
-            string? category = null;
-            string? key = null;
-            string? scope = null;
+        if (existing is null)
+            return false;
 
-            await using (var cmd = conn.CreateCommand())
-            {
-                cmd.CommandText = "SELECT \"Category\", \"Key\", \"Scope\" FROM \"MemoryFacts\" WHERE \"Id\" = @p0";
-                cmd.Parameters.Add(new SqliteParameter("@p0", command.Id));
+        await FactWriter.DeleteAsync(db, command.Id, cancellationToken);
 
-                await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
-                if (!await reader.ReadAsync(cancellationToken))
-                    return false;
-
-                category = reader.GetString(0);
-                key = reader.GetString(1);
-                scope = reader.GetString(2);
-            }
-
-            await using var delCmd = conn.CreateCommand();
-            delCmd.CommandText = "DELETE FROM \"MemoryFacts\" WHERE \"Id\" = @p0";
-            delCmd.Parameters.Add(new SqliteParameter("@p0", command.Id));
-            await delCmd.ExecuteNonQueryAsync(cancellationToken);
-
-            Log.Deleted(logger, command.Id, category, key, scope);
-            return true;
-        }
-        finally
-        {
-            await conn.CloseAsync();
-        }
+        Log.Deleted(logger, command.Id, existing.Category, existing.Key, existing.Scope);
+        return true;
     }
 
     private static partial class Log
