@@ -1,4 +1,4 @@
-# Memory Server
+# Mittens
 
 You have access to a persistent memory store at `http://localhost:5070`. Use it to store and retrieve persistent context across coding sessions.
 
@@ -8,13 +8,13 @@ You have access to a persistent memory store at `http://localhost:5070`. Use it 
 
 Before doing anything else:
 
-1. `memory_search` with `scope=project`, `category=fact,rule,concept`
-2. `memory_search` with the project name or relevant area as keyword
+1. `mittens_search` with `scope=project`, `category=fact,rule,concept`
+2. `mittens_search` with the project name or relevant area as keyword
 3. **Never say "I don't know"** about the user's preferences, project setup, conventions, or past decisions without searching memory first
 
 ### Before You Store — Gate Check
 
-Ask yourself before every `memory_set`:
+Ask yourself before every `mittens_set`:
 
 | If the fact is... | Then... |
 |---|---|
@@ -27,19 +27,19 @@ Ask yourself before every `memory_set`:
 
 ### After Completing Work
 
-- Store decisions, bug patterns, or conventions discovered during the task using `memory_set`
+- Store decisions, bug patterns, or conventions discovered during the task using `mittens_set`
 - If the user states a preference, save it immediately
 
 ## When to Use Memory
 
 | User says / does | Your response |
 |---|---|
-| "remember X" / "save this" / "store that" | `memory_set` to persist it |
-| "do you remember?" / "what do I know about X?" | `memory_search` if unsure of scope, `memory_list` if scope is known |
-| "forget that" / "remove X" / "delete X" | `memory_search` to find the ID, then `memory_delete` |
-| "what did we decide about X?" | `memory_search` with the topic keyword |
-| "what are the project conventions?" | `memory_list` with `category=rule` and `scope=project` |
-| Before starting a complex task | `memory_search` for related facts in the relevant scope |
+| "remember X" / "save this" / "store that" | `mittens_set` to persist it |
+| "do you remember?" / "what do I know about X?" | `mittens_search` if unsure of scope, `mittens_list` if scope is known |
+| "forget that" / "remove X" / "delete X" | `mittens_search` to find the ID, then `mittens_delete` |
+| "what did we decide about X?" | `mittens_search` with the topic keyword |
+| "what are the project conventions?" | `mittens_list` with `category=rule` and `scope=project` |
+| Before starting a complex task | `mittens_search` for related facts in the relevant scope |
 
 ## Category Reference
 
@@ -70,12 +70,12 @@ When two facts share the same `(category, scope, key)`, the one with higher conf
 
 | Tool | Description |
 |---|---|
-| `memory_list` | List facts with optional filters (category, scope, key) and pagination |
-| `memory_get` | Get a single fact by ID |
-| `memory_search` | Search facts by keyword in key/value fields |
-| `memory_set` | Create/replace a fact (higher confidence wins on conflict) |
-| `memory_update` | Update an existing fact by ID (partial update) |
-| `memory_delete` | Delete a fact by ID |
+| `mittens_list` | List facts with optional filters (category, scope, key) and pagination |
+| `mittens_get` | Get a single fact by ID |
+| `mittens_search` | Search facts by keyword in key/value fields |
+| `mittens_set` | Create/replace a fact (higher confidence wins on conflict) |
+| `mittens_update` | Update an existing fact by ID (partial update) |
+| `mittens_delete` | Delete a fact by ID |
 
 ## Scope Convention
 
@@ -87,7 +87,7 @@ The server must be running before you can use its tools. If you get connection e
 
 ```bash
 # If docker-compose.memory.yml doesn't exist, create it first:
-curl -O https://raw.githubusercontent.com/janitorr/aot-memory-server/main/docker-compose.example.yml
+curl -O https://raw.githubusercontent.com/janitorr/mittens/main/docker-compose.example.yml
 mv docker-compose.example.yml docker-compose.memory.yml
 
 # Then start:

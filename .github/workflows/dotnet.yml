@@ -25,7 +25,7 @@ jobs:
       - run: dotnet build --no-restore
       - run: dotnet test --no-build --verbosity normal
       - run: dotnet build -c Release --no-restore
-      - run: dotnet test tests/AotMemoryServer.Tests.Integration -c Release --no-build --verbosity normal
+      - run: dotnet test tests/Mittens.Tests.Integration -c Release --no-build --verbosity normal
 
   docker:
     if: github.event_name == 'push'
@@ -37,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: janitorr/aot-memory-server
+          images: janitorr/mittens
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}

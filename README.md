@@ -1,9 +1,9 @@
-# AOT Memory Server
+# Mittens
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
-[![.NET](https://github.com/janitorr/aot-memory-server/actions/workflows/dotnet.yml/badge.svg)](https://github.com/janitorr/aot-memory-server/actions/workflows/dotnet.yml)
+[![.NET](https://github.com/janitorr/mittens/actions/workflows/dotnet.yml/badge.svg)](https://github.com/janitorr/mittens/actions/workflows/dotnet.yml)
 
-A lightweight, AOT-compiled persistent memory store for AI agents. Provides REST and MCP APIs backed by SQLite. Compiled to a native binary (~33 MB) with fast startup and zero runtime dependencies.
+**Agent Ledger** — a lightweight persistent memory store for AI agents. Provides REST and MCP APIs backed by SQLite. Compiled to a native binary (~33 MB) with fast startup and zero runtime dependencies.
 
 ## Features
 
@@ -22,7 +22,7 @@ A lightweight, AOT-compiled persistent memory store for AI agents. Provides REST
 
 ```bash
 # Run the server
-dotnet run --project src/AotMemoryServer
+dotnet run --project src/Mittens
 
 # Run tests
 dotnet test
@@ -49,7 +49,7 @@ docker compose down
 docker compose down -v
 ```
 
-The container stores the SQLite database in a named volume (`memory-data`), so data persists across restarts. Works on Linux, macOS, and Windows (Docker Desktop).
+The container stores the SQLite database in a named volume (`mittens-data`), so data persists across restarts. Works on Linux, macOS, and Windows (Docker Desktop).
 
 For an LLM-assisted setup in your own project, see [`SETUP.md`](SETUP.md).
 
@@ -64,7 +64,7 @@ For an LLM-assisted setup in your own project, see [`SETUP.md`](SETUP.md).
 | DELETE | `/api/memory/{id}` | Delete a fact by ID |
 | GET | `/api/health` | Health check |
 | GET | `/api/ready` | Readiness check |
-| POST | `/mcp` | MCP (tools: `memory_list`, `memory_get`, `memory_search`, `memory_set`, `memory_update`, `memory_delete`) |
+| POST | `/mcp` | MCP (tools: `mittens_list`, `mittens_get`, `mittens_search`, `mittens_set`, `mittens_update`, `mittens_delete`) |
 
 Full API documentation with curl examples is in [`AGENTS.md`](AGENTS.md). Interactive docs are at `/scalar/v1` when the server is running.
 
@@ -108,7 +108,7 @@ Configuration is managed through `appsettings.json` / `appsettings.Development.j
 ## Project Structure
 
 ```
-src/AotMemoryServer/
+src/Mittens/
 ├── Application/          # CQRS handlers, serialization, DTOs
 │   ├── Abstractions/     # Interfaces and base types
 │   ├── Commands/         # Upsert, Update, Delete
@@ -117,12 +117,12 @@ src/AotMemoryServer/
 ├── Data/                 # EF Core DbContext and compiled model
 │   └── Compiled/         # Precompiled EF Core model (AOT-ready)
 ├── Endpoints/            # REST, Health, MCP endpoint definitions
-├── Models/               # MemoryFact entity, validator, validation errors
+├── Models/               # MittensFact entity, validator, validation errors
 └── Program.cs            # Entry point, DI, middleware, routing
 
 tests/
-├── AotMemoryServer.Tests.Unit/        # Validator & conflict resolution tests
-└── AotMemoryServer.Tests.Integration/  # REST, MCP, health endpoint tests
+├── Mittens.Tests.Unit/        # Validator & conflict resolution tests
+└── Mittens.Tests.Integration/  # REST, MCP, health endpoint tests
 ```
 
 ## Development
@@ -132,10 +132,10 @@ tests/
 dotnet build
 
 # Run unit tests
-dotnet test tests/AotMemoryServer.Tests.Unit
+dotnet test tests/Mittens.Tests.Unit
 
 # Run integration tests
-dotnet test tests/AotMemoryServer.Tests.Integration
+dotnet test tests/Mittens.Tests.Integration
 ```
 
 ## Using with opencode
@@ -151,7 +151,7 @@ docker compose -f docker-compose.example.yml up -d
 Or download it directly:
 
 ```bash
-curl -O https://raw.githubusercontent.com/janitorr/aot-memory-server/main/docker-compose.example.yml
+curl -O https://raw.githubusercontent.com/janitorr/mittens/main/docker-compose.example.yml
 docker compose -f docker-compose.example.yml up -d
 ```
 
@@ -182,7 +182,7 @@ Download [`AGENTS.template.md`](AGENTS.template.md) as `memory-server.md` in you
 
 ```bash
 mkdir -p ~/.config/opencode
-curl -o ~/.config/opencode/memory-server.md https://raw.githubusercontent.com/janitorr/aot-memory-server/main/AGENTS.template.md
+curl -o ~/.config/opencode/memory-server.md https://raw.githubusercontent.com/janitorr/mittens/main/AGENTS.template.md
 ```
 
 Then add `"memory-server.md"` to the `instructions` array in `~/.config/opencode/opencode.json`:

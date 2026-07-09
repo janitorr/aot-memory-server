@@ -1,15 +1,15 @@
 services:
-  memory-server:
-    image: janitorr/aot-memory-server:latest
-    container_name: aot-memory-server
+  mittens:
+    image: janitorr/mittens:latest
+    container_name: mittens
     ports:
       - "5070:5070"
     volumes:
-      - memory-data:/app/data
+      - mittens-data:/app/data
     environment:
       - ASPNETCORE_URLS=http://0.0.0.0:5070
       - ConnectionStrings__DefaultDb=Data Source=/app/data/memory.db
     restart: unless-stopped
 
 volumes:
-  memory-data:
+  mittens-data:

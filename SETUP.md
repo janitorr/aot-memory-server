@@ -1,16 +1,16 @@
-# AOT Memory Server — LLM Setup Guide
+# Mittens — LLM Setup Guide
 
-You are an LLM assisting a user in setting up the AOT Memory Server for their project. Follow these steps in order.
+You are an LLM assisting a user in setting up the Mittens for their project. Follow these steps in order.
 
 ## Overview
 
-The AOT Memory Server is a lightweight, AOT-compiled persistent memory store for AI agents. It provides REST and MCP APIs backed by SQLite. This guide walks you through a complete installation using global OpenCode configuration, so agent instructions and MCP config are shared across all projects. Only one compose file lands in the project root.
+The Mittens is a lightweight, AOT-compiled persistent memory store for AI agents. It provides REST and MCP APIs backed by SQLite. This guide walks you through a complete installation using global OpenCode configuration, so agent instructions and MCP config are shared across all projects. Only one compose file lands in the project root.
 
 **What you will set up:**
 - A `docker-compose.memory.yml` file in the project root
 - A Docker container running the memory server on port 5070
 - Global MCP configuration in `~/.config/opencode/opencode.json`
-- Global agent instructions in `~/.config/opencode/memory-server.md`
+- Global agent instructions in `~/.config/opencode/mittens.md`
 
 ## Prerequisites
 
@@ -44,20 +44,20 @@ Create a file named `docker-compose.memory.yml` in the project root with the fol
 
 ```yaml
 services:
-  memory-server:
-    image: janitorr/aot-memory-server:latest
-    container_name: aot-memory-server
+  mittens:
+    image: janitorr/mittens:latest
+    container_name: mittens
     ports:
       - "5070:5070"
     volumes:
-      - memory-data:/app/data
+      - mittens-data:/app/data
     environment:
       - ASPNETCORE_URLS=http://0.0.0.0:5070
       - ConnectionStrings__DefaultDb=Data Source=/app/data/memory.db
     restart: unless-stopped
 
 volumes:
-  memory-data:
+  mittens-data:
 ```
 
 **If the project already has a `docker-compose.yml`:** Ask the user whether to:
@@ -125,7 +125,7 @@ Add the following to the user's Claude Desktop configuration file:
 ```json
 {
   "mcpServers": {
-    "aot-memory-server": {
+    "mittens": {
       "transport": "http",
       "url": "http://localhost:5070/mcp"
     }
@@ -135,7 +135,7 @@ Add the following to the user's Claude Desktop configuration file:
 
 **Note:** Claude Desktop's MCP HTTP transport support may vary. If HTTP transport does not work, the user may need to use a stdio-based proxy. Refer to the MCP documentation for the latest guidance. Tool guidance for Claude Desktop is deferred — the MCP registration above provides tool descriptions but not the detailed usage guidance that OpenCode receives via the global `instructions` field.
 
-**Merge guidance:** If `claude_desktop_config.json` already has an `mcpServers` section, add the `aot-memory-server` entry without removing existing servers.
+**Merge guidance:** If `claude_desktop_config.json` already has an `mcpServers` section, add the `mittens` entry without removing existing servers.
 
 ## Step 4: Install Agent Instructions (Global)
 
@@ -143,16 +143,16 @@ Fetch the agent instructions template and place it in the global OpenCode config
 
 ```bash
 mkdir -p ~/.config/opencode
-curl -o ~/.config/opencode/memory-server.md https://raw.githubusercontent.com/janitorr/aot-memory-server/main/AGENTS.template.md
+curl -o ~/.config/opencode/mittens.md https://raw.githubusercontent.com/janitorr/mittens/main/AGENTS.template.md
 ```
 
 Then register the instruction file in the global `~/.config/opencode/opencode.json`. Check the existing config:
 
-**If the global config has no `instructions` key:** Add `"instructions": ["memory-server.md"]` to the config. OpenCode resolves instruction file paths relative to the config file directory, so `"memory-server.md"` resolves to `~/.config/opencode/memory-server.md`.
+**If the global config has no `instructions` key:** Add `"instructions": ["mittens.md"]` to the config. OpenCode resolves instruction file paths relative to the config file directory, so `"mittens.md"` resolves to `~/.config/opencode/mittens.md`.
 
-**If the global config has an `instructions` array with other entries:** Append `"memory-server.md"` to the array if it is not already present. Preserve all existing entries.
+**If the global config has an `instructions` array with other entries:** Append `"mittens.md"` to the array if it is not already present. Preserve all existing entries.
 
-**If `memory-server.md` is already in the `instructions` array:** Skip this step and inform the user that the instructions are already registered globally.
+**If `mittens.md` is already in the `instructions` array:** Skip this step and inform the user that the instructions are already registered globally.
 
 The `AGENTS.template.md` file contains tool-usage guidance so future LLM sessions know how to use the memory server's tools. With global instructions, every project benefits from a single file — no per-project copies needed.
 
@@ -180,25 +180,25 @@ Project-specific rules should be defined in each project's `AGENTS.md`.
 
 Test that everything works end-to-end:
 
-1. **Verify MCP tools are available globally:** The memory MCP tools (`memory_set`, `memory_list`, etc.) should appear in your available tools regardless of which project directory you are in, since the MCP server is registered in the global OpenCode configuration.
+1. **Verify MCP tools are available globally:** The memory MCP tools (`mittens_set`, `mittens_list`, etc.) should appear in your available tools regardless of which project directory you are in, since the MCP server is registered in the global OpenCode configuration.
 
-2. **Verify global instructions are loaded:** Confirm that the memory server usage guidance from `~/.config/opencode/memory-server.md` is present in your system prompt. You should see documentation about categories, scope conventions, and when to use memory tools.
+2. **Verify global instructions are loaded:** Confirm that the memory server usage guidance from `~/.config/opencode/mittens.md` is present in your system prompt. You should see documentation about categories, scope conventions, and when to use memory tools.
 
 3. **Test memory persistence:**
-   - Call `memory_set` with a test fact:
+   - Call `mittens_set` with a test fact:
      - category: `note`
      - key: `setup-test`
      - value: `Memory server setup verification successful`
      - scope: `project`
-   - Call `memory_list` and confirm the test fact appears in the results
+   - Call `mittens_list` and confirm the test fact appears in the results
 
-4. **Clean up the test fact:** Call `memory_delete` with the ID of the test fact you just created.
+4. **Clean up the test fact:** Call `mittens_delete` with the ID of the test fact you just created.
 
 If all steps succeed, the setup is complete.
 
 ## Uninstall
 
-To completely remove the AOT Memory Server and all its configuration, follow these steps in order.
+To completely remove the Mittens and all its configuration, follow these steps in order.
 
 ### Step 1: Stop and Remove the Docker Container
 
@@ -206,12 +206,12 @@ To completely remove the AOT Memory Server and all its configuration, follow the
 docker compose -f docker-compose.memory.yml down -v
 ```
 
-This stops the container and removes the named volume (`memory-data`), deleting all stored memory facts. **Confirm with the user before running this command** — data cannot be recovered.
+This stops the container and removes the named volume (`mittens-data`), deleting all stored memory facts. **Confirm with the user before running this command** — data cannot be recovered.
 
 **Optional: Remove the Docker image**
 
 ```bash
-docker rmi janitorr/aot-memory-server:latest
+docker rmi janitorr/mittens:latest
 ```
 
 This frees up disk space but is not required. The image will be re-pulled if the user reinstalls.
@@ -219,7 +219,7 @@ This frees up disk space but is not required. The image will be re-pulled if the
 ### Step 2: Remove the Instruction File
 
 ```bash
-rm ~/.config/opencode/memory-server.md
+rm ~/.config/opencode/mittens.md
 ```
 
 ### Step 3: Clean Up Global OpenCode Configuration
@@ -227,15 +227,15 @@ rm ~/.config/opencode/memory-server.md
 Edit `~/.config/opencode/opencode.json` to remove the memory server entries:
 
 1. Remove the `memory` entry from the `mcp` section. If `mcp` becomes empty after removal, you may remove the entire `mcp` section.
-2. Remove `"memory-server.md"` from the `instructions` array. If `instructions` becomes empty after removal, you may remove the entire `instructions` section.
+2. Remove `"mittens.md"` from the `instructions` array. If `instructions` becomes empty after removal, you may remove the entire `instructions` section.
 
 **Warning:** Preserve all other MCP servers and instruction entries. Only remove entries related to the memory server. Do not modify or remove other configurations.
 
 **If `mcp.memory` is not present:** Skip the MCP cleanup step.
 
-**If `memory-server.md` is not in the `instructions` array:** Skip the instructions cleanup step.
+**If `mittens.md` is not in the `instructions` array:** Skip the instructions cleanup step.
 
-**Note:** `~/.config/opencode/AGENTS.md` is a generic global-rules stub, not memory-server-specific. Do **not** remove it — it is shared by all global instructions and enables the `instructions` mechanism for any future use.
+**Note:** `~/.config/opencode/AGENTS.md` is a generic global-rules stub, not mittens-specific. Do **not** remove it — it is shared by all global instructions and enables the `instructions` mechanism for any future use.
 
 ### Step 4: Remove the Docker Compose File (Optional)
 
@@ -323,10 +323,10 @@ python -c "import urllib.request; print(urllib.request.urlopen('http://localhost
 **Symptoms:** Health check times out, container is running but unreachable.
 
 **Steps to resolve:**
-1. Confirm the container is running: `docker ps | grep aot-memory-server`
+1. Confirm the container is running: `docker ps | grep mittens`
 2. Check container logs: `docker compose -f docker-compose.memory.yml logs`
-3. Verify the port mapping: `docker port aot-memory-server`
-4. Try accessing from inside the container: `docker exec aot-memory-server curl http://localhost:5070/api/health`
+3. Verify the port mapping: `docker port mittens`
+4. Try accessing from inside the container: `docker exec mittens curl http://localhost:5070/api/health`
 5. Check firewall rules that may block localhost connections
 
 ## Management Commands
