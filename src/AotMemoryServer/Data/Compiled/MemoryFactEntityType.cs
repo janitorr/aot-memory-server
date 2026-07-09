@@ -100,7 +100,7 @@ namespace AotMemoryServer.Data.Compiled
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
-            runtimeEntityType.AddAnnotation("Relational:Schema", null);
+            runtimeEntityType.AddAnnotation("Relational:Schema", "mem");
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
             runtimeEntityType.AddAnnotation("Relational:TableName", "MemoryFacts");
             runtimeEntityType.AddAnnotation("Relational:ViewName", null);
