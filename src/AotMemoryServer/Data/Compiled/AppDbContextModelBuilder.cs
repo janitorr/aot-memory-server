@@ -22,7 +22,6 @@ namespace AotMemoryServer.Data.Compiled
             MemoryFactEntityType.CreateAnnotations(memoryFact);
 
             AddAnnotation("ProductVersion", "10.0.9");
-            AddAnnotation("Relational:DefaultSchema", "mem");
         }
     }
 }

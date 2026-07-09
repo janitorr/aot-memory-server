@@ -13,7 +13,7 @@ public static class MemoryFactSql
         """;
 
     public const string GetFactsCount = """
-        SELECT COUNT(*) FROM "MemoryFacts"
+        SELECT COUNT(*) AS "Value" FROM "MemoryFacts"
         WHERE (@p0 IS NULL OR "Category" = @p0) AND (@p1 IS NULL OR "Scope" = @p1) AND (@p2 IS NULL OR "Key" = @p2)
         """;
 
@@ -25,7 +25,7 @@ public static class MemoryFactSql
         """;
 
     public const string SearchFactsCount = """
-        SELECT COUNT(*) FROM "MemoryFacts"
+        SELECT COUNT(*) AS "Value" FROM "MemoryFacts"
         WHERE (@p0 IS NULL OR "Key" LIKE '%' || @p0 || '%' OR "Value" LIKE '%' || @p0 || '%') AND (@p1 IS NULL OR "Category" = @p1) AND (@p2 IS NULL OR "Scope" = @p2)
         """;
 

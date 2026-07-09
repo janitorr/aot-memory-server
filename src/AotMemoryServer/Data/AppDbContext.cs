@@ -13,7 +13,6 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("mem");
         modelBuilder.Entity<MemoryFact>(entity =>
         {
             entity.HasIndex(e => new { e.Category, e.Key, e.Scope }).IsUnique();
