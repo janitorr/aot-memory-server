@@ -27,16 +27,16 @@ Every fact is a ledger entry with a category, key, value, scope, and confidence.
 
 ## Features
 
-- **Native AOT binary** — no .NET runtime required, ~33 MB, instant startup
+- **Single binary** — ~33 MB, instant startup, zero dependencies
 - **REST API** — full CRUD at `/api/memory`
 - **MCP endpoint** — six tools at `/mcp` (`mittens_list`, `mittens_get`, `mittens_search`, `mittens_set`, `mittens_update`, `mittens_delete`)
-- **Health checks** — `/api/health` and `/api/ready`
+- **Health check** — `/api/health` with database connectivity verification
 - **OpenAPI + Scalar UI** — interactive docs at `/scalar/v1`
 - **Validation** — input validation, secret detection, conflict resolution
 - **Search** — full-text search across keys and values
 - **Pagination & filtering** — by category, scope, and key
-- **CQRS architecture** — clean separation of commands and queries
-- **34+ tests** — unit + integration
+- **CQRS via Mediator** — source-generated commands and queries
+- **59 tests** — 33 unit + 26 integration
 
 ## Quick Start
 
@@ -47,7 +47,7 @@ dotnet run --project src/Mittens
 # Run tests
 dotnet test
 
-# AOT-publish a native binary
+# Publish a native binary
 dotnet publish -c Release
 ```
 
@@ -83,7 +83,6 @@ For an LLM-assisted setup in your own project, see [`SETUP.md`](SETUP.md).
 | PUT | `/api/memory/{id}` | Update a fact by ID |
 | DELETE | `/api/memory/{id}` | Delete a fact by ID |
 | GET | `/api/health` | Health check |
-| GET | `/api/ready` | Readiness check |
 | POST | `/mcp` | MCP (tools: `mittens_list`, `mittens_get`, `mittens_search`, `mittens_set`, `mittens_update`, `mittens_delete`) |
 
 Full API documentation with curl examples is in [`AGENTS.md`](AGENTS.md). Interactive docs are at `/scalar/v1` when the server is running.
@@ -130,12 +129,12 @@ Configuration is managed through `appsettings.json` / `appsettings.Development.j
 ```
 src/Mittens/
 ├── Application/          # CQRS handlers, serialization, DTOs
-│   ├── Abstractions/     # Interfaces and base types
+│   ├── Abstractions/     # Shared types (PagedResult, ValidationException)
 │   ├── Commands/         # Upsert, Update, Delete
 │   ├── Queries/          # GetFacts, GetFactById, SearchFacts
 │   └── Serialization/    # JSON serialization context and DTOs
 ├── Data/                 # EF Core DbContext and compiled model
-│   └── Compiled/         # Precompiled EF Core model (AOT-ready)
+│   └── Compiled/         # Precompiled EF Core model
 ├── Endpoints/            # REST, Health, MCP endpoint definitions
 ├── Models/               # MittensFact entity, validator, validation errors
 └── Program.cs            # Entry point, DI, middleware, routing
