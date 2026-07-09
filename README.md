@@ -3,13 +3,33 @@
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
 [![.NET](https://github.com/janitorr/mittens/actions/workflows/dotnet.yml/badge.svg)](https://github.com/janitorr/mittens/actions/workflows/dotnet.yml)
 
-**Agent Ledger** — a lightweight persistent memory store for AI agents. Provides REST and MCP APIs backed by SQLite. Compiled to a native binary (~33 MB) with fast startup and zero runtime dependencies.
+**Agent Ledger** — persistent structured memory for AI agents.
+
+LLMs reset between sessions. Mittens gives them a ledger — a persistent, queryable memory store that survives context windows, accessible via MCP and REST.
+
+## How It Works
+
+```
+Agent ──write──▶ ┌──────────────────┐
+                 │    M I T T E N S  │
+                 │  ┌────┬────┬────┐ │
+                 │  │cat │key │val │ │
+                 │  ├────┼────┼────┤ │
+                 │  │fact│api │200 │ │
+                 │  │rule│sec │no  │ │
+                 │  └────┴────┴────┘ │
+                 │   SQLite (disk)   │
+                 └──────────────────┘
+Agent ◀──read───  MCP / REST API
+```
+
+Every fact is a ledger entry with a category, key, value, scope, and confidence. Higher confidence wins on conflict.
 
 ## Features
 
-- **Native AOT binary** — no .NET runtime required, instant startup
+- **Native AOT binary** — no .NET runtime required, ~33 MB, instant startup
 - **REST API** — full CRUD at `/api/memory`
-- **MCP endpoint** — AI-agent-friendly endpoint at `/mcp`
+- **MCP endpoint** — six tools at `/mcp` (`mittens_list`, `mittens_get`, `mittens_search`, `mittens_set`, `mittens_update`, `mittens_delete`)
 - **Health checks** — `/api/health` and `/api/ready`
 - **OpenAPI + Scalar UI** — interactive docs at `/scalar/v1`
 - **Validation** — input validation, secret detection, conflict resolution
@@ -204,3 +224,5 @@ If you are an AI agent helping a user install this memory server, read [`SETUP.m
 ## License
 
 [MIT](LICENSE)
+
+*Named after a cat that never existed.*
