@@ -2,10 +2,10 @@ using Mittens.Core.Fact;
 using Mittens.Core.Fact.Commands;
 using Mittens.Core.Fact.Queries;
 using Mittens.Core.Shared;
-using Mittens.Serialization;
+using Mittens.Host.Serialization;
 using Mediator;
 
-namespace Mittens.Memory.Endpoints;
+namespace Mittens.Host.Memory.Endpoints;
 
 public static class FactEndpoints
 {

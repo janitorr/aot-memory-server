@@ -57,7 +57,7 @@ src/Mittens.Host/         # Web application shell
 
 ## Naming Conventions
 
-- Host project: `Mittens.Host` (assembly), root namespace `Mittens`
+- Host project: `Mittens.Host` (assembly), root namespace `Mittens.Host`
 - Core project: `Mittens.Core` (assembly + namespace)
 - Host feature folder is `Memory/` not `Fact/` — avoids collision with `Mittens.Core.Fact.Fact` type
 - Database table: `MittensFacts`, schema: `mittens`
@@ -65,8 +65,14 @@ src/Mittens.Host/         # Web application shell
 
 ## OpenSpec Workflow
 
-Schema: `spec-driven`. Flow: Propose → Spec → Design → Tasks → Implement → Validate → Archive.
-Use `/opsx-propose`, `/opsx-continue`, `/opsx-apply`. Validate with `openspec validate <change-name>`.
+Schema: `spec-driven` (Propose → Spec → Design → Tasks → Implement → Archive).
+
+To start a change, tell me to load the relevant skill:
+
+- **`load openspec-plan`** — I'll explore the idea, then scaffold the change folder with proposal, specs, design, and tasks
+- **`load openspec-execute`** — I'll implement the tasks, run tests, and archive
+
+Or just say "I want to make a change" and I'll guide you from there.
 
 ## Releases
 

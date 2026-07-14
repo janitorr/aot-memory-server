@@ -1,8 +1,8 @@
-using Mittens.Memory.Data;
-using Mittens.Serialization;
+using Mittens.Host.Memory.Data;
+using Mittens.Host.Serialization;
 using Microsoft.EntityFrameworkCore;
 
-namespace Mittens.Endpoints;
+namespace Mittens.Host.Endpoints;
 
 public static class HealthEndpoints
 {

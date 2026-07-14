@@ -1,6 +1,6 @@
 using Mittens.Core.Fact;
 
-namespace Mittens.Serialization;
+namespace Mittens.Host.Serialization;
 
 public sealed record HealthStatus(string Status);
 

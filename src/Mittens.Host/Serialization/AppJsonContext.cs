@@ -3,7 +3,7 @@ using Mittens.Core.Fact;
 using Mittens.Core.Shared;
 using Fact = Mittens.Core.Fact.Fact;
 
-namespace Mittens.Serialization;
+namespace Mittens.Host.Serialization;
 
 [JsonSerializable(typeof(Fact))]
 [JsonSerializable(typeof(PagedResult<Fact>))]

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Mittens.Core.Fact;
 using Mittens.Core.Shared;
 
-namespace Mittens.Memory.Data;
+namespace Mittens.Host.Memory.Data;
 
 public class FactReader(AppDbContext db) : IFactReader
 {
