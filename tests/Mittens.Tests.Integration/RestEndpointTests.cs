@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Mittens.Core.Fact;
 using Mittens.Core.Shared;
-using Mittens.Serialization;
+using Mittens.Host.Serialization;
 
 namespace Mittens.Tests.Integration;
 

@@ -4,7 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Mittens.Core.Fact;
 
-namespace Mittens.Memory.Data;
+namespace Mittens.Host.Memory.Data;
 
 public class FactWriter(AppDbContext db) : IFactWriter
 {

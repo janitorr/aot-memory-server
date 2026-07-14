@@ -1,9 +1,9 @@
 using Mittens.Core.Fact;
-using Mittens.Memory.Data;
-using Mittens.Memory.Data.Compiled;
-using Mittens.Memory.Endpoints;
-using Mittens.Endpoints;
-using Mittens.Serialization;
+using Mittens.Host.Memory.Data;
+using Mittens.Host.Memory.Data.Compiled;
+using Mittens.Host.Memory.Endpoints;
+using Mittens.Host.Endpoints;
+using Mittens.Host.Serialization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 using ModelContextProtocol.AspNetCore;

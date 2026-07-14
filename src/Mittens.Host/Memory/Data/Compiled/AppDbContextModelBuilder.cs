@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace Mittens.Memory.Data.Compiled
+namespace Mittens.Host.Memory.Data.Compiled
 {
     public partial class AppDbContextModel
     {

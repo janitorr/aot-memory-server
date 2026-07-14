@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Mittens.Core.Fact;
 
-namespace Mittens.Memory.Data;
+namespace Mittens.Host.Memory.Data;
 
 public class AppDbContext : DbContext
 {

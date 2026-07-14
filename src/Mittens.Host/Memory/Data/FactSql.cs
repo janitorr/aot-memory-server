@@ -1,4 +1,4 @@
-namespace Mittens.Memory.Data;
+namespace Mittens.Host.Memory.Data;
 
 public static class FactSql
 {

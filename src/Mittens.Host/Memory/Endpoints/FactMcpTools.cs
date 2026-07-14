@@ -3,11 +3,11 @@ using System.Text.Json;
 using Mittens.Core.Fact;
 using Mittens.Core.Fact.Commands;
 using Mittens.Core.Fact.Queries;
-using Mittens.Serialization;
+using Mittens.Host.Serialization;
 using Mediator;
 using ModelContextProtocol.Server;
 
-namespace Mittens.Memory.Endpoints;
+namespace Mittens.Host.Memory.Endpoints;
 
 [McpServerToolType]
 public sealed class FactMcpTools
